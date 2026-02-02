@@ -189,7 +189,7 @@ export const GameConfig: React.FC<GameConfigProps> = ({ initialConfig, onStartGa
                   <tr><td>3rd inversion</td><td>--</td><td>C42, C4/2, C2</td></tr>
                 </tbody>
               </table>
-              <p className="notation-note">For 7th chords, use only the final symbol listed in each jazz symbol row (e.g., <strong>Co7</strong> for dim 7).</p>
+              <p className="notation-note">Use only the final symbol listed in each jazz symbol row (e.g., <strong>Co7</strong> for dim 7).</p>
             </div>
           </div>
         </div>
