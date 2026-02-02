@@ -3,7 +3,8 @@ import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental } from 'vexflo
 import type { Chord } from '../types';
 
 interface ChordDisplayProps {
-  chord: Chord;
+  chord: Chord,
+  clef?: string;
 }
 
 // Convert to VexFlow format (need octave)
@@ -30,10 +31,10 @@ function noteToVexFlow(note: string, bassOctave: number = 4): { key: string; acc
 }
 
 // Calculate octaves to keep chord in reasonable range
-function calculateOctaves(notes: string[]): number[] {
+function calculateOctaves(notes: string[], bassOctave: number = 4): number[] {
   const noteOrder = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
   const octaves: number[] = [];
-  let currentOctave = 4;
+  let currentOctave = bassOctave;
 
   for (let i = 0; i < notes.length; i++) {
     if (i === 0) {
@@ -55,7 +56,7 @@ function calculateOctaves(notes: string[]): number[] {
   return octaves;
 }
 
-export const ChordDisplay: React.FC<ChordDisplayProps> = ({ chord }) => {
+export const ChordDisplay: React.FC<ChordDisplayProps> = ({ chord, clef = 'treble' }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
@@ -82,11 +83,12 @@ export const ChordDisplay: React.FC<ChordDisplayProps> = ({ chord }) => {
 
     // Create staff
     const stave = new Stave(10, 40, 280);
-    stave.addClef('treble');
+    stave.addClef(clef);
     stave.setContext(context).draw();
 
     // octaves
-    const octaves = calculateOctaves(chord.notes);
+    const bassOctave = clef === 'bass' ? 3 : 4;
+    const octaves = calculateOctaves(chord.notes, bassOctave);
 
     // Create notes with accidentals
     const vexNotes = chord.notes.map((note, index) => 
@@ -97,6 +99,7 @@ export const ChordDisplay: React.FC<ChordDisplayProps> = ({ chord }) => {
     const staveNote = new StaveNote({
       keys: vexNotes.map(n => n.key),
       duration: 'w', // whole note
+      clef: clef,
     });
 
     // Add accidentals

@@ -113,7 +113,7 @@ function App() {
           </div>
           
           <div className="game-content">
-            <ChordDisplay chord={gameState.currentChord} />
+            <ChordDisplay chord={gameState.currentChord} clef={Math.random() < 0.5 ? 'treble' : 'bass'} />
             <ChordInput 
               chord={gameState.currentChord}
               onCorrectAnswer={handleCorrectAnswer}
