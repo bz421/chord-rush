@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental } from 'vexflow';
 import type { Chord } from '../types';
 
@@ -58,9 +58,11 @@ function calculateOctaves(notes: string[]): number[] {
 export const ChordDisplay: React.FC<ChordDisplayProps> = ({ chord }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
+  const [showAnswer, setShowAnswer] = useState<boolean>(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
+    setShowAnswer(false);
 
     // Clear previous render
     containerRef.current.innerHTML = '';
@@ -120,6 +122,8 @@ export const ChordDisplay: React.FC<ChordDisplayProps> = ({ chord }) => {
       <div className="chord-hint">
         Identify this chord:
       </div>
+      <button onClick={() => setShowAnswer(!showAnswer)}>{showAnswer ? 'Hide Answer' : 'Show Answer'}</button>
+      {showAnswer && <p>{chord.display}</p>}
     </div>
   );
 };
