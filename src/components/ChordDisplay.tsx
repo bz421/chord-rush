@@ -3,130 +3,130 @@ import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental } from 'vexflo
 import type { Chord } from '../types';
 
 interface ChordDisplayProps {
-  chord: Chord,
-  clef?: string;
+	chord: Chord,
+	clef?: string;
 }
 
 // Convert to VexFlow format (need octave)
 function noteToVexFlow(note: string, bassOctave: number = 4): { key: string; accidental?: string } {
-  // Extract the bass (first char)
-  const bass = note[0].toLowerCase();
-  
-  // Determine accidental
-  let accidental: string | undefined;
-  if (note.includes('##')) {
-    accidental = '##';
-  } else if (note.includes('bb')) {
-    accidental = 'bb';
-  } else if (note.includes('#')) {
-    accidental = '#';
-  } else if (note.includes('b')) {
-    accidental = 'b';
-  }
+	// Extract the bass (first char)
+	const bass = note[0].toLowerCase();
 
-  return {
-    key: `${bass}/${bassOctave}`,
-    accidental,
-  };
+	// Determine accidental
+	let accidental: string | undefined;
+	if (note.includes('##')) {
+		accidental = '##';
+	} else if (note.includes('bb')) {
+		accidental = 'bb';
+	} else if (note.includes('#')) {
+		accidental = '#';
+	} else if (note.includes('b')) {
+		accidental = 'b';
+	}
+
+	return {
+		key: `${bass}/${bassOctave}`,
+		accidental,
+	};
 }
 
 // Calculate octaves to keep chord in reasonable range
 function calculateOctaves(notes: string[], bassOctave: number = 4): number[] {
-  const noteOrder = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-  const octaves: number[] = [];
-  let currentOctave = bassOctave;
+	const noteOrder = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+	const octaves: number[] = [];
+	let currentOctave = bassOctave;
 
-  for (let i = 0; i < notes.length; i++) {
-    if (i === 0) {
-      octaves.push(currentOctave);
-    } else {
-      const prevNote = notes[i - 1].replace(/[#b]/g, '');
-      const currNote = notes[i].replace(/[#b]/g, '');
-      const prevIndex = noteOrder.indexOf(prevNote);
-      const currIndex = noteOrder.indexOf(currNote);
-      
-      // If current note is lower in the scale, wrap to next octave
-      if (currIndex <= prevIndex) {
-        currentOctave++;
-      }
-      octaves.push(currentOctave);
-    }
-  }
+	for (let i = 0; i < notes.length; i++) {
+		if (i === 0) {
+			octaves.push(currentOctave);
+		} else {
+			const prevNote = notes[i - 1].replace(/[#b]/g, '');
+			const currNote = notes[i].replace(/[#b]/g, '');
+			const prevIndex = noteOrder.indexOf(prevNote);
+			const currIndex = noteOrder.indexOf(currNote);
 
-  return octaves;
+			// If current note is lower in the scale, wrap to next octave
+			if (currIndex <= prevIndex) {
+				currentOctave++;
+			}
+			octaves.push(currentOctave);
+		}
+	}
+
+	return octaves;
 }
 
 export const ChordDisplay: React.FC<ChordDisplayProps> = ({ chord, clef = 'treble' }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<Renderer | null>(null);
-  const [showAnswer, setShowAnswer] = useState<boolean>(false);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const rendererRef = useRef<Renderer | null>(null);
+	const [showAnswer, setShowAnswer] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-    setShowAnswer(false);
+	useEffect(() => {
+		if (!containerRef.current) return;
+		setShowAnswer(false);
 
-    // Clear previous render
-    containerRef.current.innerHTML = '';
+		// Clear previous render
+		containerRef.current.innerHTML = '';
 
-    // Create renderer
-    const renderer = new Renderer(
-      containerRef.current,
-      Renderer.Backends.SVG
-    );
+		// Create renderer
+		const renderer = new Renderer(
+			containerRef.current,
+			Renderer.Backends.SVG
+		);
 
-    rendererRef.current = renderer;
+		rendererRef.current = renderer;
 
-    // Configure renderer
-    renderer.resize(300, 180);
-    const context = renderer.getContext();
-    context.setFont('Arial', 10);
+		// Configure renderer
+		renderer.resize(300, 180);
+		const context = renderer.getContext();
+		context.setFont('Arial', 10);
 
-    // Create staff
-    const stave = new Stave(10, 40, 280);
-    stave.addClef(clef);
-    stave.setContext(context).draw();
+		// Create staff
+		const stave = new Stave(10, 40, 280);
+		stave.addClef(clef);
+		stave.setContext(context).draw();
 
-    // octaves
-    const bassOctave = clef === 'bass' ? 3 : 4;
-    const octaves = calculateOctaves(chord.notes, bassOctave);
+		// octaves
+		const bassOctave = clef === 'bass' ? 3 : 4;
+		const octaves = calculateOctaves(chord.notes, bassOctave);
 
-    // Create notes with accidentals
-    const vexNotes = chord.notes.map((note, index) => 
-      noteToVexFlow(note, octaves[index])
-    );
+		// Create notes with accidentals
+		const vexNotes = chord.notes.map((note, index) =>
+			noteToVexFlow(note, octaves[index])
+		);
 
-    // Create the chord as a StaveNote
-    const staveNote = new StaveNote({
-      keys: vexNotes.map(n => n.key),
-      duration: 'w', // whole note
-      clef: clef,
-    });
+		// Create the chord as a StaveNote
+		const staveNote = new StaveNote({
+			keys: vexNotes.map(n => n.key),
+			duration: 'w', // whole note
+			clef: clef,
+		});
 
-    // Add accidentals
-    vexNotes.forEach((note, index) => {
-      if (note.accidental) {
-        staveNote.addModifier(new Accidental(note.accidental), index);
-      }
-    });
+		// Add accidentals
+		vexNotes.forEach((note, index) => {
+			if (note.accidental) {
+				staveNote.addModifier(new Accidental(note.accidental), index);
+			}
+		});
 
-    // Create voice and add note
-    const voice = new Voice({ numBeats: 4, beatValue: 4 });
-    voice.addTickables([staveNote]);
+		// Create voice and add note
+		const voice = new Voice({ numBeats: 4, beatValue: 4 });
+		voice.addTickables([staveNote]);
 
-    // Format and draw
-    new Formatter().joinVoices([voice]).format([voice], 250);
-    voice.draw(context, stave);
+		// Format and draw
+		new Formatter().joinVoices([voice]).format([voice], 250);
+		voice.draw(context, stave);
 
-  }, [chord]);
+	}, [chord]);
 
-  return (
-    <div className="chord-display">
-      <div className="staff-container" ref={containerRef} />
-      <div className="chord-hint">
-        Identify this chord:
-      </div>
-      <button onClick={() => setShowAnswer(!showAnswer)}>{showAnswer ? 'Hide Answer' : 'Show Answer'}</button>
-      {showAnswer && <p>{chord.display}</p>}
-    </div>
-  );
+	return (
+		<div className="chord-display">
+			<div className="staff-container" ref={containerRef} />
+			<div className="chord-hint">
+				Identify this chord:
+			</div>
+			<button onClick={() => setShowAnswer(!showAnswer)}>{showAnswer ? 'Hide Answer' : 'Show Answer'}</button>
+			{showAnswer && <p>{chord.display}</p>}
+		</div>
+	);
 };

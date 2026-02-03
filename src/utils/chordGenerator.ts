@@ -40,6 +40,6 @@ export function generateRandomChord(
     attempts < maxAttempts
   );
 
-  console.log(`Generated chord in ${attempts} attempt(s): ${newChord.display}`);
+  // console.log(`Generated chord in ${attempts} attempt(s): ${newChord.display}`);
   return newChord;
 }

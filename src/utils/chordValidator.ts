@@ -2,7 +2,7 @@ import type { Chord } from '../types';
 
 // Normalize user input for comparison
 function normalizeInput(input: string): string {
-  console.log(`Normalizing input: ${input}`);
+  // console.log(`Normalizing input: ${input}`);
   return input
     .trim()
     .replace(/\s+/g, '') // Remove all whitespace
@@ -14,7 +14,7 @@ function normalizeInput(input: string): string {
 // Check if user input matches the chord
 export function validateChordInput(input: string, chord: Chord): boolean {
   const normalizedInput = normalizeInput(input);
-  console.log(`Expecting one of: ${chord.acceptedAnswers.join(', ')} for chord ${chord.display}`);
+  // console.log(`Expecting one of: ${chord.acceptedAnswers.join(', ')} for chord ${chord.display}`);
   
   if (!normalizedInput) {
     return false;
